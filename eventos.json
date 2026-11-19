@@ -1,0 +1,110 @@
+{
+  "risco": {
+    "nivel": "vermelho",
+    "rotulo": "Risco alto",
+    "regra": "3+ eventos ou evento crítico"
+  },
+  "eventos": [
+    {
+      "hora": "19:28:26",
+      "sink": "log",
+      "tipo": "Vazamento de PII bloqueado",
+      "severidade": "alto",
+      "detalhe": "Tentativa de gravar dado sensível em log de sistema",
+      "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.",
+      "fonte_mensagem": "Fallback (sem chave de LLM)",
+      "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log, severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."
+    },
+    {
+      "hora": "19:28:26",
+      "sink": "log (senha)",
+      "tipo": "Vazamento de PII bloqueado",
+      "severidade": "alto",
+      "detalhe": "Tentativa de gravar dado sensível em log de sistema",
+      "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.",
+      "fonte_mensagem": "Fallback (sem chave de LLM)",
+      "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log (senha), severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."
+    },
+    {
+      "hora": "19:28:26",
+      "sink": "log (propagação)",
+      "tipo": "Vazamento de PII bloqueado",
+      "severidade": "alto",
+      "detalhe": "Tentativa de gravar dado sensível em log de sistema",
+      "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.",
+      "fonte_mensagem": "Fallback (sem chave de LLM)",
+      "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log (propagação), severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."
+    },
+    {
+      "hora": "19:28:26",
+      "sink": "resposta_http",
+      "tipo": "Vazamento de PII em resposta pública bloqueado",
+      "severidade": "critico",
+      "detalhe": "Resposta HTTP sem autenticação continha dado sensível",
+      "mensagem_cidadao": "Houve uma tentativa de mostrar seus dados para quem não estava autorizado, mas o sistema bloqueou. Nada foi exposto.",
+      "fonte_mensagem": "Fallback (sem chave de LLM)",
+      "prompt": "Traduza a falha técnica 'Vazamento de PII em resposta pública bloqueado' (saída: resposta_http, severidade: critico) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."
+    },
+    {
+      "hora": "19:28:26",
+      "sink": "banco",
+      "tipo": "PII mascarado antes da gravação",
+      "severidade": "medio",
+      "detalhe": "Registro continha dado sensível; gravado apenas mascarado",
+      "mensagem_cidadao": "Seus dados sensíveis foram escondidos antes de serem guardados. Assim, ninguém consegue ler seu CPF ou senha por engano.",
+      "fonte_mensagem": "Fallback (sem chave de LLM)",
+      "prompt": "Traduza a falha técnica 'PII mascarado antes da gravação' (saída: banco, severidade: medio) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."
+    }
+  ],
+  "achados": [
+    {
+      "campo": "mensagem_suspeita",
+      "tipo": "CPF",
+      "severidade": "critico",
+      "valor_mascarado": "***.982.***-25"
+    },
+    {
+      "campo": "mensagem_suspeita",
+      "tipo": "TELEFONE",
+      "severidade": "medio",
+      "valor_mascarado": "(**) *****-4321"
+    },
+    {
+      "campo": "mensagem_suspeita",
+      "tipo": "SENHA",
+      "severidade": "critico",
+      "valor_mascarado": "[SENHA-OCULTA]"
+    },
+    {
+      "campo": "contato",
+      "tipo": "EMAIL",
+      "severidade": "medio",
+      "valor_mascarado": "m***@email.com"
+    },
+    {
+      "campo": "documento",
+      "tipo": "CPF",
+      "severidade": "critico",
+      "valor_mascarado": "***.982.***-25"
+    },
+    {
+      "campo": "rg",
+      "tipo": "RG",
+      "severidade": "alto",
+      "valor_mascarado": "12**********"
+    },
+    {
+      "campo": "senha",
+      "tipo": "CHAVE_SENSIVEL",
+      "severidade": "alto",
+      "valor_mascarado": "[OCULTO]"
+    },
+    {
+      "campo": "observacao_saude",
+      "tipo": "SAUDE",
+      "severidade": "critico",
+      "valor_mascarado": "[DADO-DE-SAUDE]"
+    }
+  ],
+  "gerado_em": "18/11/2026 19:28"
+}

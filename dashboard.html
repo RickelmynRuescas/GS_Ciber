@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memória Digital - Risco Cidadão</title>
+<style>
+  :root { --bg:#0f1420; --card:#fff; --ink:#1b2333; --mut:#5d6b82; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:Segoe UI,Arial,sans-serif; background:var(--bg); color:#fff; }
+  header { padding:20px 32px; border-bottom:1px solid #243049; display:flex; justify-content:space-between; align-items:center; }
+  header h1 { font-size:20px; margin:0; }
+  header span { color:#8fa0bd; font-size:13px; }
+  main { display:grid; grid-template-columns:340px 1fr; gap:24px; padding:24px 32px; }
+  .card { background:var(--card); color:var(--ink); border-radius:14px; padding:22px; }
+  .farol { display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .luzes { background:#1b2333; border-radius:40px; padding:14px; display:flex; flex-direction:column; gap:12px; }
+  .luz { width:70px; height:70px; border-radius:50%; background:#333b4d; transition:all .4s; }
+  .luz.verde.on { background:#22c55e; box-shadow:0 0 28px #22c55e; }
+  .luz.amarelo.on { background:#facc15; box-shadow:0 0 28px #facc15; }
+  .luz.vermelho.on { background:#ef4444; box-shadow:0 0 28px #ef4444; }
+  .rotulo { font-size:22px; font-weight:700; }
+  .regra { font-size:12px; color:var(--mut); text-align:center; }
+  button { background:#1b2333; color:#fff; border:0; border-radius:8px; padding:10px 16px; cursor:pointer; font-size:14px; }
+  button:hover { background:#2b3750; }
+  h2 { margin:0 0 4px; font-size:17px; }
+  .sub { color:var(--mut); font-size:13px; margin-bottom:14px; }
+  .evento { border-left:5px solid; border-radius:8px; background:#f4f6fa; padding:12px 14px; margin-bottom:10px; animation:in .4s; }
+  .evento.alto { border-color:#f59e0b; } .evento.critico { border-color:#ef4444; } .evento.medio { border-color:#facc15; }
+  .evento b { display:block; margin-bottom:3px; }
+  .meta { font-size:11px; color:var(--mut); margin-top:6px; }
+  .msg { font-size:14px; }
+  .vazio { color:var(--mut); font-size:14px; padding:20px 0; }
+  table { width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; }
+  th,td { text-align:left; padding:6px 8px; border-bottom:1px solid #e3e8f0; }
+  th { color:var(--mut); font-weight:600; }
+  @keyframes in { from { opacity:0; transform:translateY(8px);} to {opacity:1; transform:none;} }
+</style>
+</head>
+<body>
+<header>
+  <h1>Memória Digital &middot; Painel de Risco Cidadão</h1>
+  <span id="gerado"></span>
+</header>
+<main>
+  <section class="card farol">
+    <h2>Indicador Risco Cidadão</h2>
+    <div class="luzes">
+      <div class="luz vermelho" id="l-vermelho"></div>
+      <div class="luz amarelo" id="l-amarelo"></div>
+      <div class="luz verde on" id="l-verde"></div>
+    </div>
+    <div class="rotulo" id="rotulo">Seguro</div>
+    <div class="regra" id="regra">0 eventos</div>
+    <button onclick="reproduzir()">&#9654; Reproduzir atividade</button>
+    <button onclick="reiniciar()" style="background:#5d6b82">Reiniciar</button>
+  </section>
+
+  <section class="card">
+    <h2>O que aconteceu, em linguagem simples</h2>
+    <div class="sub">Cada bloqueio de segurança é traduzido pela IA para uma mensagem que qualquer pessoa entende.</div>
+    <div id="lista"><div class="vazio">Nenhum evento ainda. Clique em "Reproduzir atividade".</div></div>
+    <h2 style="margin-top:18px">Dados sensíveis detectados (já mascarados)</h2>
+    <table id="achados"><thead><tr><th>Campo</th><th>Tipo</th><th>Severidade</th><th>Valor mascarado</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+<script>
+const DADOS = {"risco": {"nivel": "vermelho", "rotulo": "Risco alto", "regra": "3+ eventos ou evento crítico"}, "eventos": [{"hora": "19:28:26", "sink": "log", "tipo": "Vazamento de PII bloqueado", "severidade": "alto", "detalhe": "Tentativa de gravar dado sensível em log de sistema", "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.", "fonte_mensagem": "Fallback (sem chave de LLM)", "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log, severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."}, {"hora": "19:28:26", "sink": "log (senha)", "tipo": "Vazamento de PII bloqueado", "severidade": "alto", "detalhe": "Tentativa de gravar dado sensível em log de sistema", "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.", "fonte_mensagem": "Fallback (sem chave de LLM)", "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log (senha), severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."}, {"hora": "19:28:26", "sink": "log (propagação)", "tipo": "Vazamento de PII bloqueado", "severidade": "alto", "detalhe": "Tentativa de gravar dado sensível em log de sistema", "mensagem_cidadao": "Alguém quase gravou seus dados pessoais em um registro interno, mas nosso sistema impediu. Seus dados continuam protegidos.", "fonte_mensagem": "Fallback (sem chave de LLM)", "prompt": "Traduza a falha técnica 'Vazamento de PII bloqueado' (saída: log (propagação), severidade: alto) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."}, {"hora": "19:28:26", "sink": "resposta_http", "tipo": "Vazamento de PII em resposta pública bloqueado", "severidade": "critico", "detalhe": "Resposta HTTP sem autenticação continha dado sensível", "mensagem_cidadao": "Houve uma tentativa de mostrar seus dados para quem não estava autorizado, mas o sistema bloqueou. Nada foi exposto.", "fonte_mensagem": "Fallback (sem chave de LLM)", "prompt": "Traduza a falha técnica 'Vazamento de PII em resposta pública bloqueado' (saída: resposta_http, severidade: critico) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."}, {"hora": "19:28:26", "sink": "banco", "tipo": "PII mascarado antes da gravação", "severidade": "medio", "detalhe": "Registro continha dado sensível; gravado apenas mascarado", "mensagem_cidadao": "Seus dados sensíveis foram escondidos antes de serem guardados. Assim, ninguém consegue ler seu CPF ou senha por engano.", "fonte_mensagem": "Fallback (sem chave de LLM)", "prompt": "Traduza a falha técnica 'PII mascarado antes da gravação' (saída: banco, severidade: medio) para um cidadão leigo de 60 anos, em 2 frases, sem termos técnicos, dizendo se ele precisa fazer algo."}], "achados": [{"campo": "mensagem_suspeita", "tipo": "CPF", "severidade": "critico", "valor_mascarado": "***.982.***-25"}, {"campo": "mensagem_suspeita", "tipo": "TELEFONE", "severidade": "medio", "valor_mascarado": "(**) *****-4321"}, {"campo": "mensagem_suspeita", "tipo": "SENHA", "severidade": "critico", "valor_mascarado": "[SENHA-OCULTA]"}, {"campo": "contato", "tipo": "EMAIL", "severidade": "medio", "valor_mascarado": "m***@email.com"}, {"campo": "documento", "tipo": "CPF", "severidade": "critico", "valor_mascarado": "***.982.***-25"}, {"campo": "rg", "tipo": "RG", "severidade": "alto", "valor_mascarado": "12**********"}, {"campo": "senha", "tipo": "CHAVE_SENSIVEL", "severidade": "alto", "valor_mascarado": "[OCULTO]"}, {"campo": "observacao_saude", "tipo": "SAUDE", "severidade": "critico", "valor_mascarado": "[DADO-DE-SAUDE]"}], "gerado_em": "18/11/2026 19:28"};
+let timer = null;
+// escapa texto antes de inserir no HTML (a mensagem vem de um LLM: nunca confiar)
+function esc(t) {
+  return String(t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function linhaAchado(a) {
+  return '<tr><td>'+esc(a.campo)+'</td><td>'+esc(a.tipo)+'</td><td>'+esc(a.severidade)+'</td><td>'+esc(a.valor_mascarado)+'</td></tr>';
+}
+document.getElementById('gerado').textContent = 'Gerado em ' + DADOS.gerado_em;
+
+function nivel(n, critico) {
+  if (n === 0) return {nivel:'verde', rotulo:'Seguro', regra:'0 eventos'};
+  if (n >= 3 || critico) return {nivel:'vermelho', rotulo:'Risco alto', regra:'3+ eventos ou evento crítico'};
+  return {nivel:'amarelo', rotulo:'Atenção', regra:'1-2 eventos sem criticidade'};
+}
+function pintar(n, critico) {
+  const r = nivel(n, critico);
+  ['verde','amarelo','vermelho'].forEach(c => document.getElementById('l-'+c).classList.toggle('on', c === r.nivel));
+  document.getElementById('rotulo').textContent = r.rotulo;
+  document.getElementById('regra').textContent = r.regra + ' (' + n + ' evento' + (n===1?'':'s') + ')';
+}
+function reiniciar() {
+  clearInterval(timer);
+  document.getElementById('lista').innerHTML = '<div class="vazio">Nenhum evento ainda. Clique em "Reproduzir atividade".</div>';
+  document.querySelector('#achados tbody').innerHTML = '';
+  pintar(0, false);
+}
+function addEvento(e) {
+  const l = document.getElementById('lista');
+  if (l.querySelector('.vazio')) l.innerHTML = '';
+  const d = document.createElement('div');
+  d.className = 'evento ' + e.severidade;
+  d.innerHTML = '<b>' + esc(e.tipo) + '</b><div class="msg">' + esc(e.mensagem_cidadao) + '</div>' +
+    '<div class="meta">saída: ' + esc(e.sink) + ' &middot; severidade: ' + esc(e.severidade) + ' &middot; ' + esc(e.hora) + ' &middot; ' + esc(e.fonte_mensagem) + '</div>';
+  l.appendChild(d);
+}
+function reproduzir() {
+  reiniciar();
+  let i = 0;
+  const tb = document.querySelector('#achados tbody');
+  DADOS.achados.forEach(a => {
+    tb.innerHTML += linhaAchado(a);
+  });
+  timer = setInterval(() => {
+    if (i >= DADOS.eventos.length) { clearInterval(timer); return; }
+    addEvento(DADOS.eventos[i]); i++;
+    pintar(i, DADOS.eventos.slice(0,i).some(e => e.severidade === 'critico'));
+  }, 1500);
+}
+const mN = location.hash.match(/^#n=(\d)$/);
+if (mN) { const n = +mN[1]; DADOS.eventos = DADOS.eventos.slice(0, n); location.hash = '#final'; }
+if (location.hash === '#final') {
+  DADOS.achados.forEach(a => {
+    document.querySelector('#achados tbody').innerHTML += linhaAchado(a);
+  });
+  DADOS.eventos.forEach(addEvento);
+  pintar(DADOS.eventos.length, DADOS.eventos.some(e => e.severidade === 'critico'));
+}
+</script>
+</body>
+</html>
